@@ -1,16 +1,171 @@
-# React + Vite
+# ともしび｜飲食店統合ダッシュボード
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## プロジェクト概要
 
-Currently, two official plugins are available:
+- **名称**: ともしび 飲食店統合ダッシュボード
+- **目的**: 飲食店の在庫・売上・発注・人件費を一元管理する統合ダッシュボード
+- **主な機能**: 
+  - 📦 在庫管理（リアルタイム在庫状況・自動アラート）
+  - 💰 売上管理（日次・週次・月次分析・TOP10メニュー）
+  - 📋 発注管理（自動発注提案・履歴管理）
+  - 👥 人件費管理（シフト管理・人件費率計算）
+  - 🔄 POS連動機能（擬似リアルタイム更新）
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 公開URL
 
-## React Compiler
+- **デモサイト**: https://3000-ijftwptvbsg5bglb6juw1-b9b802c4.sandbox.novita.ai
+- **GitHub**: （設定後に追加予定）
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 完成済み機能
 
-## Expanding the ESLint configuration
+### ✅ 在庫管理タブ
+- 全メニュー（フード86品 + ドリンク80品）のデータベース化
+- カテゴリ別原価率設定（揚げ物28-33%、海鮮38-45%など）
+- 在庫ステータス自動判定（🟢十分 / 🟡やや不足 / 🟠不足 / 🔴在庫切れ）
+- 検索・フィルタ機能（カテゴリ別、フード/ドリンク切替）
+- 詳細モーダル（過去7日間の販売数グラフ表示）
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### ✅ 売上管理タブ
+- サマリーカード（売上・原価・粗利・営業利益・人件費率）
+- 期間切替（日別・週別・月別）
+- 売上推移グラフ（棒グラフ）
+- フードvsドリンク構成比（円グラフ）
+- 売上TOP10メニューランキング
+- 客単価自動計算
+- POS連動モード（10秒ごとに擬似販売データ更新）
+
+### ✅ 発注管理タブ
+- 在庫不足・在庫切れアイテム自動抽出
+- 発注フォーム（品目・数量・発注先・納品予定日）
+- 発注履歴一覧（日時・小計付き）
+- 発注コストの売上タブへの自動反映
+
+### ✅ 人件費管理タブ
+- シフト管理テーブル（編集・追加・削除可能）
+- 合計人件費の自動計算
+- 週間人件費推移グラフ
+- 役割別人件費構成（円グラフ）
+- 人件費率の売上タブへの連動
+- 適正範囲判定（30%未満:✅適正、30-35%:⚠️やや高め、35%以上:⚠️要改善）
+
+### ✅ デザイン・UX
+- 和モダンデザイン（背景#1F1F1F、金#FFD700、赤#C0392B）
+- Noto Sans JPフォント
+- Framer Motion アニメーション
+- レスポンシブ対応（スマホ/タブレット/PC）
+- カウントアップ演出
+
+## データアーキテクチャ
+
+### メニューデータモデル
+```javascript
+{
+  id: number,
+  name: string,
+  category: string, // 揚げもの、海鮮、肉料理、鍋・追加、〆もの、一品、野菜、デザート、ビール、サワー、ハイボール等
+  type: 'food' | 'drink',
+  price: number, // 10円単位
+  cost: number, // 原価（円）
+  stock: number, // 在庫数
+  reorderLevel: number, // 発注レベル
+  costRate: number // 原価率（%）
+}
+```
+
+### 価格・原価率設定
+- 揚げもの: 価格480-780円、原価率28-33%
+- 海鮮: 価格680-1200円、原価率38-45%
+- 肉料理: 価格780-1280円、原価率38-42%
+- 鍋・追加: 価格380-1680円、原価率35-40%
+- 〆もの: 価格580-1080円、原価率30-35%
+- 一品・野菜: 価格380-780円、原価率30-35%
+- デザート: 価格300-580円、原価率25-30%
+- ビール: 価格550-780円、原価率28-33%
+- サワー/ハイボール: 価格500-700円、原価率25-32%
+- 日本酒: 価格700-980円、原価率35-45%
+- 焼酎: 価格550-750円、原価率30-40%
+- その他ドリンク: 各カテゴリごとに設定
+
+### 売上計算式
+- **売上** = 価格 × 販売数量
+- **原価合計** = 原価 × 販売数量
+- **粗利** = 売上 - 原価合計
+- **営業利益** = 売上 - (原価合計 + 人件費 + 発注コスト)
+- **人件費率** = 人件費 ÷ 売上 × 100
+- **客単価** = 売上 ÷ 来客数
+
+## 利用方法
+
+### 在庫管理
+1. 上部タブから「在庫管理」を選択
+2. 検索窓でメニューを検索、またはカテゴリ/タイプでフィルタ
+3. 在庫ステータスを確認（色とアイコンで一目瞭然）
+4. 行をクリックして詳細情報と販売推移を確認
+
+### 売上分析
+1. 「売上管理」タブを選択
+2. 期間（日別/週別/月別）を切り替え
+3. サマリーカードで主要指標を確認
+4. グラフで売上推移と構成比を視覚的に把握
+5. TOP10ランキングで人気メニューを確認
+6. POS連動ONで擬似リアルタイム更新を体験
+
+### 発注管理
+1. 「発注管理」タブで在庫不足アイテムを確認
+2. 「発注」ボタンをクリックして発注フォームを開く
+3. 数量・発注先・納品予定日を入力
+4. 「発注する」で送信（在庫が自動更新）
+5. 発注履歴で過去の発注を確認
+
+### 人件費管理
+1. 「人件費管理」タブを選択
+2. 「+ 従業員追加」で新規従業員を登録
+3. 既存従業員の「編集」でシフト情報を更新
+4. 合計人件費と人件費率を確認
+5. グラフで週間推移と役割別構成を把握
+
+## 未実装機能（今後の拡張案）
+
+- 実際のPOSシステムとのAPI連携
+- データベース永続化（現在はブラウザメモリのみ）
+- CSV/Excelエクスポート機能
+- メール通知機能（在庫切れ・発注完了時）
+- ユーザー認証・権限管理
+- 複数店舗対応
+- レシピ管理機能
+- 予算管理・予実対比機能
+
+## 次の推奨開発ステップ
+
+1. **データ永続化**: LocalStorageまたはクラウドDBへの保存機能追加
+2. **エクスポート機能**: 売上・在庫データのCSV出力
+3. **より詳細な分析**: 時間帯別売上分析、曜日別傾向分析
+4. **モバイル最適化**: タブレットでの操作性向上
+5. **印刷機能**: 日報・週報の印刷対応
+
+## デプロイ状況
+
+- **プラットフォーム**: Vite + React
+- **ステータス**: ✅ 開発完了・動作確認済み
+- **技術スタック**: 
+  - React 18
+  - Vite 7
+  - Tailwind CSS（CDN）
+  - Recharts（グラフ）
+  - Framer Motion（アニメーション）
+  - Noto Sans JP（フォント）
+
+## 注記
+
+※ このダッシュボードで使用されている価格・原価はすべて相場感ベースのダミーデータです。実在する価格ではなく、エビデンスもありません。商談用デモンストレーション目的のみでご利用ください。
+
+## 最終更新
+
+- **日付**: 2025-10-21
+- **バージョン**: 1.0.0
+- **作成者**: AI Assistant
+
+---
+
+✅ ともしび 統合ダッシュボード（ダミー稼働版）が完成しました。
+右上の Publish からデプロイすると、商談で共有できるURLが発行されます。🚀
