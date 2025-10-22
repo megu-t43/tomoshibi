@@ -1,9 +1,10 @@
 module.exports = {
   apps: [
     {
-      name: 'webapp',
-      script: 'npx',
-      args: 'vite preview --host 0.0.0.0 --port 3000',
+      name: 'tomoshibi-dashboard',
+      script: 'python3',
+      args: '-m http.server 3000 --bind 0.0.0.0 --directory /home/user/tomoshibi-dashboard/dist',
+      cwd: '/home/user/tomoshibi-dashboard/dist',
       env: {
         NODE_ENV: 'production',
         PORT: 3000
