@@ -18,7 +18,7 @@
 - **デプロイ状態**: ✅ 稼働中
 - **プロジェクトパス**: `/home/user/tomoshibi-dashboard/`
 - **公開ディレクトリ**: `/home/user/tomoshibi-dashboard/dist/`
-- **GitHub**: （設定後に追加予定）
+- **GitHub**: https://github.com/megu-t43/tomoshibi
 
 ## 完成済み機能
 
