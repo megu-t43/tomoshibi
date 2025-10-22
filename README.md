@@ -13,7 +13,11 @@
 
 ## 公開URL
 
-- **デモサイト**: https://3000-ijftwptvbsg5bglb6juw1-b9b802c4.sandbox.novita.ai
+- **Genspark Hosting（固定公開URL）**: https://3000-ijftwptvbsg5bglb6juw1-b9b802c4.sandbox.novita.ai
+- **ホスティング方式**: Python static server (http.server)
+- **デプロイ状態**: ✅ 稼働中
+- **プロジェクトパス**: `/home/user/tomoshibi-dashboard/`
+- **公開ディレクトリ**: `/home/user/tomoshibi-dashboard/dist/`
 - **GitHub**: （設定後に追加予定）
 
 ## 完成済み機能
